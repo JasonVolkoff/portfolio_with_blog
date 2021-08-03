@@ -4,11 +4,20 @@ from django.db.models.deletion import PROTECT
 from django.template.defaultfilters import slugify
 # Create your models here.
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        return super(Category, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=100)
     slug = models.SlugField()
-    category = models.CharField(max_length=50)
+    category = models.ForeignKey(Category, on_delete=PROTECT, related_name='categories')
     thumbname = models.ImageField(upload_to='photos/%Y/%m/%d')
     excerpt = models.CharField(max_length=200)
     month = models.CharField(max_length=3)
@@ -58,11 +67,6 @@ class BlogPost(models.Model):
     def __str__(self):
         return self.title
 
-class Category(models.Model):
-    name = models.CharField(max_length=50)
-    post = models.ForeignKey(BlogPost, on_delete=PROTECT, related_name='categories')
 
-    def __str__(self):
-        return self.title
 
         
